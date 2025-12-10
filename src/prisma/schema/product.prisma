@@ -1,0 +1,11 @@
+model Product {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String?  // Optional
+  price       Decimal  @db.Decimal(10, 2)
+  stock       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("products")
+}

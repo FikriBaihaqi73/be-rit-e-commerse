@@ -1,47 +1,62 @@
-import { Product, products } from '../models/product.model';
+import prisma from '../prisma';
+import { Product } from '@prisma/client';
 
-export class ProductService {
-  static getAll(): Product[] {
-    return products;
-  }
+export const getAllProducts = async (): Promise<Product[]> => {
+  return await prisma.product.findMany();
+};
 
-  static getById(id: number): Product {
-    const product = products.find(p => p.id === id);
-    if (!product) throw new Error('Produk dengan ID tersebut tidak ditemukan');
-    return product;
+export const getProductById = async (id: number): Promise<Product> => {
+  const product = await prisma.product.findUnique({
+    where: { id },
+  });
+  
+  if (!product) {
+    throw new Error('Product not found');
   }
+  
+  return product;
+};
 
-  static create(data: { nama: string; deskripsi: string; harga: number }): Product {
-    const newProduct = {
-      id: products.length + 1,
-      ...data
-    };
-    products.push(newProduct);
-    return newProduct;
-  }
+export const createProduct = async (data: { 
+  name: string; 
+  description?: string; 
+  price: number; 
+  stock: number 
+}): Promise<Product> => {
+  return await prisma.product.create({
+    data: {
+      name: data.name,
+      description: data.description,
+      price: data.price,
+      stock: data.stock,
+    },
+  });
+};
 
-  static update(id: number, data: Partial<Product>): Product {
-    const index = products.findIndex(p => p.id === id);
-    if (index === -1) throw new Error('Produk tidak ditemukan');
-    products[index] = { ...products[index], ...data };
-    return products[index];
-  }
+export const updateProduct = async (id: number, data: Partial<Product>): Promise<Product> => {
+  await getProductById(id); // Cek existance
 
-  static delete(id: number): Product {
-    const index = products.findIndex(p => p.id === id);
-    if (index === -1) throw new Error('Produk tidak ditemukan');
-    return products.splice(index, 1)[0];
-  }
+  return await prisma.product.update({
+    where: { id },
+    data,
+  });
+};
 
-  // Fitur search yang diminta di tugas
-  static search(name?: string, maxPrice?: number): Product[] {
-    let result = products;
-    if (name) {
-      result = result.filter(p => p.nama.toLowerCase().includes(name.toLowerCase()));
-    }
-    if (maxPrice) {
-      result = result.filter(p => p.harga <= maxPrice);
-    }
-    return result;
+export const deleteProduct = async (id: number): Promise<Product> => {
+  await getProductById(id); // Cek existance
+
+  return await prisma.product.delete({
+    where: { id },
+  });
+};
+
+export const searchProducts = async (name?: string, maxPrice?: number): Promise<Product[]> => {
+  let result = await getAllProducts();
+  if (name) {
+    result = result.filter(p => p.name.toLowerCase().includes(name.toLowerCase()));
   }
-}
+  if (maxPrice) {
+    result = result.filter(p => p.price.toNumber() <= maxPrice);
+  }
+  return result;
+};
