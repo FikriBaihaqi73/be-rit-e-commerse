@@ -1,32 +1,32 @@
-import { Request, Response } from 'express';
+import type { Request, Response } from 'express';
 import * as ProductService  from '../services/product.service';
 import { asyncHandler } from '../utils/async.handler';
 import { successResponse } from '../utils/response';
 
-export const getAllProducts = asyncHandler(async (req: Request, res: Response) => {
+export const getAllProducts = asyncHandler(async (_req: Request, res: Response) => {
   const products = ProductService.getAllProducts();
   return successResponse(res, 'Daftar produk', products);
 });
 
 export const getProductById = asyncHandler(async (req: Request, res: Response) => {
-  const id = parseInt(req.params.id);
+  const id = parseInt(req.params.id!);
   const product = ProductService.getProductById(id);
   return successResponse(res, 'Produk ditemukan', product);
 });
 
 export const createProduct = asyncHandler(async (req: Request, res: Response) => {
-  const product = ProductService.createProduct(req.body);
+  const product = await ProductService.createProduct(req.body);
   return successResponse(res, 'Produk berhasil ditambahkan', product, null, 201);
 });
 
 export const updateProduct = asyncHandler(async (req: Request, res: Response) => {
-  const id = parseInt(req.params.id);
+  const id = parseInt(req.params.id!);
   const product = ProductService.updateProduct(id, req.body);
   return successResponse(res, 'Produk berhasil diupdate', product);
 });
 
 export const deleteProduct = asyncHandler(async (req: Request, res: Response) => {
-  const id = parseInt(req.params.id);
+  const id = parseInt(req.params.id!);
   const product = ProductService.deleteProduct(id);
   return successResponse(res, 'Produk berhasil dihapus', product);
 });
