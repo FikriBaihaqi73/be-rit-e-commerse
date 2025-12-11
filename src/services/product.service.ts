@@ -2,12 +2,19 @@ import  prisma  from '../prisma';
 import type { Product } from '../generated/client';
 
 export const getAllProducts = async (): Promise<Product[]> => {
-  return await prisma.product.findMany();
+  return await prisma.product.findMany({
+    include: {
+      category: true,
+    },
+  });
 };
 
 export const getProductById = async (id: number): Promise<Product> => {
   const product = await prisma.product.findUnique({
     where: { id },
+    include: {
+      category: true,
+    },
   });
   
   if (!product) {
@@ -22,6 +29,7 @@ export const createProduct = async (data: {
   price: number; 
   stock: number;
   description?: string; 
+  categoryId: number; 
 }): Promise<Product> => {
   return await prisma.product.create({
     data: {
@@ -29,6 +37,7 @@ export const createProduct = async (data: {
       description: data.description ?? null,
       price: data.price,
       stock: data.stock,
+      categoryId: data.categoryId,
     },
   });
 };

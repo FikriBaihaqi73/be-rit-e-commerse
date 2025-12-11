@@ -7,10 +7,10 @@ import {
   deleteProduct,
   searchProducts
 } from '../controllers/product.controller';
-import { 
-  validate, 
-  createProductValidation, 
-  getProductByIdValidation 
+import { validate } from '../utils/validate';
+import {
+  createProductValidation,
+  getProductByIdValidation
 } from '../middlewares/product.validation';
 
 const router = Router();

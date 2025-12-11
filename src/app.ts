@@ -3,6 +3,7 @@ import morgan from 'morgan';
 import helmet from 'helmet';
 import cors from 'cors';
 import productRoutes from './routes/product.route';
+import categoryRoutes from './routes/category.route';
 import { errorHandler } from './middlewares/error.handler';
 
 const app = express();
@@ -28,6 +29,7 @@ app.get('/', (req, res) => {
 });
 
 app.use('/api/v1', productRoutes);
+app.use('/api/v1', categoryRoutes);
 
 // Error handler harus di paling bawah!
 // Middleware error handling dengan 4 parameter (`err, req, res, next`) harus selalu 
