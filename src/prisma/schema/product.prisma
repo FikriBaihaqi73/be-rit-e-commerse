@@ -8,6 +8,7 @@ model Product {
     // === TAMBAHAN RELASI ===
   categoryId  Int?     // Foreign Key
   category    Category? @relation(fields: [categoryId], references: [id])
+  transactionItems TransactionItem[]
   // =======================
   
   createdAt   DateTime @default(now())

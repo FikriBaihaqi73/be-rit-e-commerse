@@ -1,0 +1,12 @@
+model User {
+    id Int @id @default(autoincrement())
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    deletedAt DateTime? @db.Timestamptz
+
+    name String
+    email String @unique
+    transactions Transaction[]
+
+    @@map("users")
+}
