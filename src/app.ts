@@ -2,6 +2,7 @@ import express from 'express';
 import morgan from 'morgan';
 import helmet from 'helmet';
 import cors from 'cors';
+import authRoutes from './routes/auth.route';
 import productRoutes from './routes/product.route';
 import categoryRoutes from './routes/category.route';
 import transactionRoutes from './routes/transaction.route';
@@ -32,6 +33,7 @@ app.get('/', (req, res) => {
 app.use('/api/v1', productRoutes);
 app.use('/api/v1', categoryRoutes);
 app.use('/api/v1', transactionRoutes);
+app.use('/api/v1', authRoutes);
 
 // Error handler harus di paling bawah!
 // Middleware error handling dengan 4 parameter (`err, req, res, next`) harus selalu 

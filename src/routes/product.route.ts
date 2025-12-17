@@ -7,6 +7,7 @@ import {
   deleteProduct,
   searchProducts
 } from '../controllers/product.controller';
+import { authenticate } from '../middlewares/auth.middleware';
 import { validate } from '../utils/validate';
 import {
   createProductValidation,
@@ -15,11 +16,11 @@ import {
 
 const router = Router();
 
-router.get('/products', getAllProducts);
-router.get('/products/search', searchProducts); // Route search harus sebelum :id
-router.get('/products/:id', validate(getProductByIdValidation), getProductById);
-router.post('/products', validate(createProductValidation), createProduct);
-router.put('/products/:id', validate(createProductValidation), updateProduct);
-router.delete('/products/:id', validate(getProductByIdValidation), deleteProduct);
+router.get('/products', authenticate, getAllProducts);
+router.get('/products/search', authenticate, searchProducts); // Route search harus sebelum :id
+router.get('/products/:id', authenticate, validate(getProductByIdValidation), getProductById);
+router.post('/products', authenticate, validate(createProductValidation), createProduct);
+router.put('/products/:id', authenticate, validate(createProductValidation), updateProduct);
+router.delete('/products/:id', authenticate, validate(getProductByIdValidation), deleteProduct);
 
 export default router;

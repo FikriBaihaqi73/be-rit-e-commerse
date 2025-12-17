@@ -8,6 +8,7 @@ import {
   searchCategories
 } from '../controllers/category.controller';
 import { validate } from '../utils/validate';
+import { authenticate } from '../middlewares/auth.middleware';
 import {
   createCategoryValidation,
   getCategoryByIdValidation
@@ -15,11 +16,11 @@ import {
 
 const router = Router();
 
-router.get('/categories', getAllCategories);
-router.get('/categories/search', searchCategories); // Route search harus sebelum :id
-router.get('/categories/:id', validate(getCategoryByIdValidation), getCategoryById);
-router.post('/categories', validate(createCategoryValidation), createCategory);
-router.put('/categories/:id', validate(createCategoryValidation), updateCategory);
-router.delete('/categories/:id', validate(getCategoryByIdValidation), deleteCategory);
+router.get('/categories', authenticate, getAllCategories);
+router.get('/categories/search', authenticate, searchCategories); // Route search harus sebelum :id
+router.get('/categories/:id', authenticate, validate(getCategoryByIdValidation), getCategoryById);
+router.post('/categories', authenticate, validate(createCategoryValidation), createCategory);
+router.put('/categories/:id', authenticate, validate(createCategoryValidation), updateCategory);
+router.delete('/categories/:id', authenticate, validate(getCategoryByIdValidation), deleteCategory);
 
 export default router;

@@ -3,11 +3,21 @@ import * as transactionService from "../services/transaction.service";
 
 export const checkout = async (req: Request, res: Response) => {
   try {
-    const { userId, items } = req.body;
+    const userId = req.user?.id;
+    const { items } = req.body;
+
+    if (!userId) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
     const result = await transactionService.checkout(userId, items);
     res.status(201).json(result);
   } catch (error) {
-    res.status(500).json({ message: "Checkout failed" });
+    if (error instanceof Error) {
+      res.status(400).json({ message: error.message });
+    } else {
+      res.status(500).json({ message: "Checkout failed" });
+    }
   }
 };
 

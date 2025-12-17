@@ -18,6 +18,8 @@ async function main() {
         create: {
             name: "Budi Santoso",
             email: "user1@example.com",
+            password: "password",
+            role: "USER",
         },
     });
 
@@ -27,6 +29,8 @@ async function main() {
         create: {
             name: "Siti Aminah",
             email: "user2@example.com",
+            password: "password",
+            role: "USER",
         },
     });
 
@@ -41,6 +45,12 @@ async function main() {
         where: { name: "Fashion" },
         update: {},
         create: { name: "Fashion" },
+    });
+
+    const catMakanan = await prisma.category.upsert({
+        where: { name: "Makanan" },
+        update: {},
+        create: { name: "Makanan" },
     });
 
     // 4. Buat Product Dummy
@@ -63,6 +73,12 @@ async function main() {
                 price: 75000,
                 stock: 100,
                 categoryId: catFashion.id,
+            },
+            {
+                name: "Ayam Goreng",
+                price: 75000,
+                stock: 100,
+                categoryId: catMakanan.id,
             },
         ],
         skipDuplicates: true, // Hindari error jika dijalankan berulang
