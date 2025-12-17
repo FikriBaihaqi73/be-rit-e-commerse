@@ -19,7 +19,11 @@ export const createProductValidation = [
   body('stock')
     .notEmpty().withMessage('Stok wajib diisi')
     .isNumeric().withMessage('Stok harus angka')
-    .custom((value: number) => value >= 0).withMessage('Stok tidak boleh negatif')
+    .custom((value: number) => value >= 0).withMessage('Stok tidak boleh negatif'),
+
+  body('image')
+    .optional()
+    .isString().withMessage('Image harus string')
 ];
 
 export const getProductByIdValidation = [
