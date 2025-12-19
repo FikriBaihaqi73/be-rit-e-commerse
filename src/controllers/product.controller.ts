@@ -3,9 +3,30 @@ import * as ProductService  from '../services/product.service';
 import { asyncHandler } from '../utils/async.handler';
 import { successResponse } from '../utils/response';
 
-export const getAllProducts = asyncHandler(async (_req: Request, res: Response) => {
-  const products = await ProductService.getAllProducts();
-  return successResponse(res, 'Daftar produk', products);
+export const getAllProducts = asyncHandler(async (req: Request, res: Response) => {
+    // 1. Ambil Query Params dengan Default Value
+  const page = Number(req.query.page) || 1;
+  const limit = Number(req.query.limit) || 10;
+  const search = req.query.search as string;
+  const sortBy = req.query.sortBy as string;
+  const sortOrder = (req.query.sortOrder as 'asc' | 'desc') || 'desc';
+
+  const result = await ProductService.getAllProducts({
+    page,
+    limit,
+    search,
+    sortBy,
+    sortOrder,
+  });
+
+    const pagination = {
+    page: result.currentPage,
+    limit: limit,
+    total: result.totalItems,
+    totalPages: result.totalPages
+  };
+
+  return successResponse(res, 'Daftar produk', result.products, pagination);
 });
 
 export const getProductById = asyncHandler(async (req: Request, res: Response) => {
@@ -63,13 +84,4 @@ export const deleteProduct = asyncHandler(async (req: Request, res: Response) =>
   const id = parseInt(req.params.id!);
   const product = await ProductService.deleteProduct(id);
   return successResponse(res, 'Produk berhasil dihapus', product);
-});
-
-export const searchProducts = asyncHandler(async (req: Request, res: Response) => {
-  const { name, max_price } = req.query;
-  const products = await ProductService.searchProducts(
-    name as string, 
-    max_price ? Number(max_price) : undefined
-  );
-  return successResponse(res, 'Hasil pencarian', products);
 });

@@ -5,7 +5,6 @@ import {
   createProduct,
   updateProduct,
   deleteProduct,
-  searchProducts
 } from '../controllers/product.controller';
 import { authenticate } from '../middlewares/auth.middleware';
 import { validate } from '../utils/validate';
@@ -18,7 +17,6 @@ import {
 const router = Router();
 
 router.get('/products', authenticate, getAllProducts);
-router.get('/products/search', authenticate, searchProducts); // Route search harus sebelum :id
 router.get('/products/:id', authenticate, validate(getProductByIdValidation), getProductById);
 router.post('/products', authenticate, upload.single('image'), validate(createProductValidation), createProduct);
 router.put('/products/:id', authenticate, upload.single('image'), validate(createProductValidation), updateProduct);
