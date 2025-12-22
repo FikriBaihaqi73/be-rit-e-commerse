@@ -1,5 +1,5 @@
-import prisma from '../prisma';
-import type { Product } from '../generated/client';
+import * as productRepo from '../repositories/product.repository';
+import type { Product, Prisma } from '../generated/client';
 
 interface findAllParams {
   page: number;
@@ -9,43 +9,26 @@ interface findAllParams {
   sortOrder?: 'asc' | 'desc';
 }
 
-interface ProductListResponse {
-  products: Product[];
-  totalItems: number;
-  totalPages: number;
-  currentPage: number;
-}
-
-export const getAllProducts = async (params: findAllParams): Promise<ProductListResponse> => {
+export const getAllProducts = async (params: findAllParams) => {
   const { page, limit, search, sortBy, sortOrder } = params;
-
   const skip = (page - 1) * limit;
 
-  // 1. Buat Filter (Where Clause)
-  const whereClause: any = {
-    deletedAt: null // Selalu filter yang belum dihapus (soft delete)
+  // Logic filter (Where Clause)
+  const whereClause: Prisma.ProductWhereInput = {
+    deletedAt: null,
   };
 
   if (search) {
     whereClause.name = { contains: search, mode: 'insensitive' };
   }
 
-  // 2. Ambil Data dengan Pagination & Sorting
-  const products = await prisma.product.findMany({
-    skip: skip,
-    take: limit,
-    where: whereClause,
-    // Gunakan array untuk orderBy agar dinamis
-    orderBy: sortBy ? { [sortBy]: sortOrder || 'desc' } : { createdAt: 'desc' },
-    include: {
-      category: true
-    }
-  });
+  // Cast sortBy to any to avoid strict key checking issues with dynamic keys
+  // In a stricter app, you would validate that sortBy is a valid key of Product
+  const sortCriteria: any = sortBy ? { [sortBy]: sortOrder || 'desc' } : { createdAt: 'desc' };
 
-  // 3. Hitung Total Data (untuk metadata pagination)
-  const totalItems = await prisma.product.count({
-    where: whereClause
-  });
+  // Panggil Repository
+  const products = await productRepo.findAll(skip, limit, whereClause, sortCriteria);
+  const totalItems = await productRepo.countAll(whereClause);
 
   return {
     products,
@@ -56,12 +39,8 @@ export const getAllProducts = async (params: findAllParams): Promise<ProductList
 };
 
 export const getProductById = async (id: number): Promise<Product> => {
-  const product = await prisma.product.findUnique({
-    where: { id, deletedAt: null },
-    include: {
-      category: true,
-    },
-  });
+  // Gunakan repository untuk mencari data
+  const product = await productRepo.findById(id);
 
   if (!product) {
     throw new Error('Product not found');
@@ -78,34 +57,35 @@ export const createProduct = async (data: {
   categoryId: number;
   image?: string;
 }): Promise<Product> => {
-  return await prisma.product.create({
-    data: {
-      name: data.name,
-      description: data.description ?? null,
-      price: data.price,
-      stock: data.stock,
-      categoryId: data.categoryId,
-      image: data.image ?? null,
-    },
-  });
+
+  // Mapping data ke Prisma ProductCreateInput
+  // Kita gunakan 'connect' untuk menghubungkan relasi category agar lebih aman
+  const createData: Prisma.ProductCreateInput = {
+    name: data.name,
+    description: data.description ?? null,
+    price: data.price,
+    stock: data.stock,
+    image: data.image ?? null,
+    category: {
+      connect: { id: data.categoryId }
+    }
+  };
+
+  return await productRepo.create(createData);
 };
 
 export const updateProduct = async (id: number, data: Partial<Product>): Promise<Product> => {
-  await getProductById(id); // Cek existance
+  await getProductById(id); // Cek existance (akan throw jika not found)
 
-  return await prisma.product.update({
-    where: { id },
-    data,
-  });
+  // Prisma Update Input type is slightly different, but Partial<Product> usually maps fine 
+  // for scalar fields. However, strict typing might require cleaning 'id', 'createdAt' etc.
+  // For simplicity in this learning module, we cast to any or pass as is if compatible.
+
+  return await productRepo.update(id, data as Prisma.ProductUpdateInput);
 };
 
 export const deleteProduct = async (id: number): Promise<Product> => {
   await getProductById(id); // Cek existance
 
-  return await prisma.product.update({
-    where: { id },
-    data: {
-      deletedAt: new Date(),
-    },
-  });
+  return await productRepo.softDelete(id);
 };
