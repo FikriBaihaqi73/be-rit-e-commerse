@@ -1,5 +1,5 @@
-import * as productRepo from '../repositories/product.repository';
-import type { Product, Prisma } from '../generated/client';
+import { ProductRepository } from '../repositories/product.repository';
+import type { Prisma } from '../generated/client';
 
 interface findAllParams {
   page: number;
@@ -9,83 +9,97 @@ interface findAllParams {
   sortOrder?: 'asc' | 'desc';
 }
 
-export const getAllProducts = async (params: findAllParams) => {
-  const { page, limit, search, sortBy, sortOrder } = params;
-  const skip = (page - 1) * limit;
+export class getAllProductsService {
+  constructor(private productRepo: ProductRepository) { }
 
-  // Logic filter (Where Clause)
-  const whereClause: Prisma.ProductWhereInput = {
-    deletedAt: null,
-  };
+  async execute(params: findAllParams) {
+    const { page, limit, search, sortBy, sortOrder } = params;
+    const skip = (page - 1) * limit;
 
-  if (search) {
-    whereClause.name = { contains: search, mode: 'insensitive' };
-  }
+    // Logic filter (Where Clause)
+    const whereClause: Prisma.ProductWhereInput = {
+      deletedAt: null,
+    };
 
-  // Cast sortBy to any to avoid strict key checking issues with dynamic keys
-  // In a stricter app, you would validate that sortBy is a valid key of Product
-  const sortCriteria: any = sortBy ? { [sortBy]: sortOrder || 'desc' } : { createdAt: 'desc' };
-
-  // Panggil Repository
-  const products = await productRepo.findAll(skip, limit, whereClause, sortCriteria);
-  const totalItems = await productRepo.countAll(whereClause);
-
-  return {
-    products,
-    totalItems,
-    totalPages: Math.ceil(totalItems / limit),
-    currentPage: page
-  };
-};
-
-export const getProductById = async (id: number): Promise<Product> => {
-  // Gunakan repository untuk mencari data
-  const product = await productRepo.findById(id);
-
-  if (!product) {
-    throw new Error('Product not found');
-  }
-
-  return product;
-};
-
-export const createProduct = async (data: {
-  name: string;
-  price: number;
-  stock: number;
-  description?: string;
-  categoryId: number;
-  image?: string;
-}): Promise<Product> => {
-
-  // Mapping data ke Prisma ProductCreateInput
-  // Kita gunakan 'connect' untuk menghubungkan relasi category agar lebih aman
-  const createData: Prisma.ProductCreateInput = {
-    name: data.name,
-    description: data.description ?? null,
-    price: data.price,
-    stock: data.stock,
-    image: data.image ?? null,
-    category: {
-      connect: { id: data.categoryId }
+    if (search) {
+      whereClause.name = { contains: search, mode: 'insensitive' };
     }
-  };
 
-  return await productRepo.create(createData);
-};
+    // Cast sortBy to any to avoid strict key checking issues with dynamic keys
+    // In a stricter app, you would validate that sortBy is a valid key of Product
+    const sortCriteria: any = sortBy ? { [sortBy]: sortOrder || 'desc' } : { createdAt: 'desc' };
 
-export const updateProduct = async (id: number, data: Partial<Product>): Promise<Product> => {
-  await getProductById(id); // Cek existance (akan throw jika not found)
+    // Panggil Repository
+    const products = await this.productRepo.findAll(skip, limit, whereClause, sortCriteria);
+    const totalItems = await this.productRepo.countAll(whereClause);
 
-  // Prisma Update Input type is slightly different, but Partial<Product> usually maps fine 
-  // for scalar fields. However, strict typing might require cleaning 'id', 'createdAt' etc.
-  // For simplicity in this learning module, we cast to any or pass as is if compatible.
+    return {
+      products,
+      totalItems,
+      totalPages: Math.ceil(totalItems / limit),
+      currentPage: page
+    };
+  }
+}
 
-  return await productRepo.update(id, data as Prisma.ProductUpdateInput);
-};
+export class getProductByIdService {
+  constructor(private productRepo: ProductRepository) { }
 
-export const deleteProduct = async (id: number): Promise<Product> => {
-  await getProductById(id); // Cek existance
+  async execute(id: number) {
+    const product = await this.productRepo.findById(id);
+    if (!product) {
+      throw new Error('Product not found');
+    }
+    return product;
+  }
+}
 
-  return await productRepo.softDelete(id);
-};
+export class createProductService {
+  constructor(private productRepo: ProductRepository) { }
+
+  async execute(data: {
+    name: string;
+    price: number;
+    stock: number;
+    description?: string;
+    categoryId: number;
+    image?: string;
+  }) {
+    const createData: Prisma.ProductCreateInput = {
+      name: data.name,
+      description: data.description ?? null,
+      price: data.price,
+      stock: data.stock,
+      image: data.image ?? null,
+      category: {
+        connect: { id: data.categoryId }
+      }
+    };
+    return await this.productRepo.create(createData);
+  }
+}
+
+
+export class updateProductService {
+  constructor(private productRepo: ProductRepository) { }
+
+  async execute(id: number, data: any) {
+    const product = await this.productRepo.findById(id);
+    if (!product) {
+      throw new Error('Product not found');
+    }
+    return await this.productRepo.update(id, data);
+  }
+}
+
+export class deleteProductService {
+  constructor(private productRepo: ProductRepository) { }
+
+  async execute(id: number) {
+    const product = await this.productRepo.findById(id);
+    if (!product) {
+      throw new Error('Product not found');
+    }
+    return await this.productRepo.softDelete(id);
+  }
+}
