@@ -4,6 +4,7 @@ import {
   deleteProductService,
   getAllProductsService,
   getProductByIdService,
+  getProductStatsService,
   updateProductService
 } from '../services/product.service';
 import { asyncHandler } from '../utils/async.handler';
@@ -15,7 +16,8 @@ export class ProductController {
     private getProductByIdSvc: getProductByIdService,
     private createProductSvc: createProductService,
     private updateProductSvc: updateProductService,
-    private deleteProductSvc: deleteProductService
+    private deleteProductSvc: deleteProductService,
+    private getProductStatsSvc: getProductStatsService
   ) { }
 
   getAllProducts = asyncHandler(async (req: Request, res: Response) => {
@@ -42,6 +44,12 @@ export class ProductController {
     };
 
     return successResponse(res, 'Daftar produk', result.products, pagination);
+  });
+
+  getStats = asyncHandler(async (req: Request, res: Response) => {
+    const categoryId = req.query.categoryId ? parseInt(req.query.categoryId as string) : undefined;
+    const stats = await this.getProductStatsSvc.execute(categoryId);
+    return successResponse(res, 'Statistik produk berhasil diambil', stats);
   });
 
   getProductById = asyncHandler(async (req: Request, res: Response) => {

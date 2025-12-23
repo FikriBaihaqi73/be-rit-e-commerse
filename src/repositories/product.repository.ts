@@ -12,6 +12,47 @@ export class ProductRepository {
     });
   }
 
+  async findComplex(categoryName: string, maxPrice: number) {
+    return await prisma.product.findMany({
+      where: {
+        OR: [
+          {
+            AND: [
+              { category: { name: categoryName } },
+              { price: { lte: maxPrice } }
+            ]
+          },
+        ]
+      }
+    })
+  }
+
+  async getStatistics(categoryId?: number) {
+    return await prisma.product.aggregate({
+      where: {
+        deletedAt: null,
+        ...(categoryId ? { categoryId } : {}),
+      },
+      _count: { id: true },
+      _avg: { price: true },
+      _max: { price: true },
+      _min: { price: true },
+      _sum: { stock: true }
+    });
+  }
+
+async getProductsByCategoryStats(categoryId?: number) {
+  return await prisma.product.groupBy({
+    by: ['categoryId'],
+    where: {
+      deletedAt: null,
+      ...(categoryId ? { categoryId } : {}), // Tambahkan filter ini
+    },
+    _count: { id: true },
+    _avg: { price: true }
+  });
+}
+
   async countAll(where: Prisma.ProductWhereInput) {
     return await prisma.product.count({ where });
   }
