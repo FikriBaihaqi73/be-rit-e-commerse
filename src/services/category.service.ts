@@ -1,5 +1,5 @@
 import prisma from "../database";
-import type { Category } from "../generated/client";
+import type { Category } from "#generated/client";
 
 export const getAllCategories = async (): Promise<Category[]> => {
     return await prisma.category.findMany();

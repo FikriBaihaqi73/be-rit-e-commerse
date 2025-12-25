@@ -1,7 +1,6 @@
 import prisma from "../database";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-// import type { User } from "../generated/client";
 
 const JWT_SECRET = process.env.JWT_SECRET || "secret_key";
 

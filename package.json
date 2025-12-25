@@ -6,7 +6,7 @@
   "scripts": {
     "test": "NODE_OPTIONS=--experimental-vm-modules jest",
     "dev": "tsx watch src/index.ts",
-    "build": "tsc && ts-add-js-extension --dir=dist",
+    "build": "npx prisma generate --schema=src/prisma && tsc && ts-add-js-extension --dir=dist",
     "start": "node dist/index.js",
     "prisma:migrate": "prisma migrate dev --name init",
     "prisma:reset": "prisma migrate reset",

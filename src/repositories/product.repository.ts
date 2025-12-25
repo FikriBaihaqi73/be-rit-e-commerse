@@ -1,5 +1,5 @@
 import prisma from '../database';
-import type { Prisma } from '../generated/client';
+import type { Prisma } from "#generated/client";
 
 export class ProductRepository {
   async findAll(skip: number, take: number, where: Prisma.ProductWhereInput, orderBy: Prisma.ProductOrderByWithRelationInput) {
