@@ -1,5 +1,5 @@
-import prisma from '../prisma';
-import type { Prisma } from '../generated/client';
+import prisma from '../database';
+import type { Prisma } from "#generated/client";
 
 export class ProductRepository {
   async findAll(skip: number, take: number, where: Prisma.ProductWhereInput, orderBy: Prisma.ProductOrderByWithRelationInput) {
@@ -41,17 +41,17 @@ export class ProductRepository {
     });
   }
 
-async getProductsByCategoryStats(categoryId?: number) {
-  return await prisma.product.groupBy({
-    by: ['categoryId'],
-    where: {
-      deletedAt: null,
-      ...(categoryId ? { categoryId } : {}), // Tambahkan filter ini
-    },
-    _count: { id: true },
-    _avg: { price: true }
-  });
-}
+  async getProductsByCategoryStats(categoryId?: number) {
+    return await prisma.product.groupBy({
+      by: ['categoryId'],
+      where: {
+        deletedAt: null,
+        ...(categoryId ? { categoryId } : {}), // Tambahkan filter ini
+      },
+      _count: { id: true },
+      _avg: { price: true }
+    });
+  }
 
   async countAll(where: Prisma.ProductWhereInput) {
     return await prisma.product.count({ where });

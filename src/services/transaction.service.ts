@@ -1,7 +1,7 @@
-import prisma from "../prisma"
+import prisma from "../database"
 
 export const checkout = async (userId: number, items: { productId: number; quantity: number }[]) => {
-  return await prisma.$transaction(async (tx) => {
+  return await prisma.$transaction(async (tx: any) => {
     let total = 0;
     const transactionItemsData = [];
 

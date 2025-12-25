@@ -1,5 +1,5 @@
 import { ProductRepository } from '../repositories/product.repository';
-import type { Prisma } from '../generated/client';
+import type { Prisma } from "#generated/client";
 
 interface findAllParams {
   page: number;
@@ -45,15 +45,15 @@ export class getAllProductsService {
 export class getProductStatsService {
   constructor(private productRepo: ProductRepository) { }
 
-async execute(categoryId?: number) {
-  const stats = await this.productRepo.getStatistics(categoryId);
-  const categoryStats = await this.productRepo.getProductsByCategoryStats(categoryId); // Teruskan kemari
-  
-  return {
-    overview: stats,
-    byCategory: categoryStats
-  };
-}
+  async execute(categoryId?: number) {
+    const stats = await this.productRepo.getStatistics(categoryId);
+    const categoryStats = await this.productRepo.getProductsByCategoryStats(categoryId); // Teruskan kemari
+
+    return {
+      overview: stats,
+      byCategory: categoryStats
+    };
+  }
 }
 
 export class getProductByIdService {
