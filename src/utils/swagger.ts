@@ -1,6 +1,5 @@
 import swaggerJsdoc from 'swagger-jsdoc';
-import dotenv from 'dotenv';
-dotenv.config();
+import { APP_URL } from './env';
 
 const options: swaggerJsdoc.Options = {
     definition: {
@@ -15,8 +14,8 @@ const options: swaggerJsdoc.Options = {
         },
         servers: [
             {
-                url: `http://localhost:${process.env.PORT || 3000}/api/v1`,
-                description: 'Development Server',
+                url: `${APP_URL}/api/v1`,
+                description: 'API Server',
             },
         ],
         components: {
