@@ -1,4 +1,4 @@
-import prisma from "../prisma";
+import prisma from "../database";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 // import type { User } from "../generated/client";

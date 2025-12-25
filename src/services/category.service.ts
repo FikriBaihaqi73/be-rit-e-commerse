@@ -1,4 +1,4 @@
-import  prisma  from "../prisma";
+import prisma from "../database";
 import type { Category } from "../generated/client";
 
 export const getAllCategories = async (): Promise<Category[]> => {
@@ -9,11 +9,11 @@ export const getCategoryById = async (id: number): Promise<Category> => {
     const category = await prisma.category.findUnique({
         where: { id },
     });
-    
+
     if (!category) {
         throw new Error('Category not found');
     }
-    
+
     return category;
 };
 
