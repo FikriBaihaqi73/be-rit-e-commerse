@@ -1,0 +1,20 @@
+model Product {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String?  // Optional
+  price       Decimal  @db.Decimal(10, 2)
+  stock       Int      @default(0)
+  image       String?
+
+    // === TAMBAHAN RELASI ===
+  categoryId  Int?     // Foreign Key
+  category    Category? @relation(fields: [categoryId], references: [id])
+  transactionItems TransactionItem[]
+  // =======================
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt   DateTime? @db.Timestamptz
+
+  @@map("products")
+}
