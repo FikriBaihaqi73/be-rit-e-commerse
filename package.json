@@ -3,6 +3,12 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "imports": {
+    "#generated/client": {
+      "types": "./src/generated/client.ts",
+      "default": "./dist/generated/client.js"
+    }
+  },
   "scripts": {
     "test": "NODE_OPTIONS=--experimental-vm-modules jest",
     "dev": "tsx watch src/index.ts",
