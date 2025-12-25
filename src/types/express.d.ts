@@ -3,8 +3,6 @@ import { Request } from 'express';
 declare global {
   namespace Express {
     interface Request {
-      startTime?: number;
-      apiKey?: string;
       user?: { // <--- Tambahkan ini
         id: number;
         role: string;
